@@ -73,4 +73,28 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  h1 {
+    @apply text-2xl font-extrabold;
+  }
+
+  h2 {
+    @apply my-2 text-xl font-bold;
+  }
+
+  p {
+    @apply inline leading-relaxed;
+  }
+
+  pre:has(code) {
+    @apply bg-slate-50 p-2 overflow-x-auto font-mono;
+  }
+
+  :not(pre)>code {
+    @apply font-mono text-sm text-rose-900;
+  }
+
+  ul {
+    @apply list-inside list-disc;
+  }
 }

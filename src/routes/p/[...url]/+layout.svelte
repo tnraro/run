@@ -1,6 +1,14 @@
 <script lang="ts">
+	import { SidebarProvider, SidebarTrigger } from '$lib/components/ui/sidebar';
 	import 'katex/dist/katex.css';
-	let { children } = $props();
+	import ProblemSidebar from './problem-sidebar.svelte';
+	let { data, children } = $props();
 </script>
 
-{@render children()}
+<SidebarProvider>
+	<ProblemSidebar problem={data} />
+	<main>
+		<SidebarTrigger />
+		{@render children()}
+	</main>
+</SidebarProvider>
