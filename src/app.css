@@ -1,3 +1,31 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard Variable", Pretendard, Roboto, "Noto Sans KR", "Segoe UI", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+h1 {
+  @apply text-2xl font-extrabold;
+}
+
+h2 {
+  @apply text-xl font-bold my-2;
+}
+
+p {
+  @apply inline leading-relaxed;
+}
+
+pre:has(code) {
+  @apply bg-slate-50 p-2 font-mono;
+}
+
+:not(pre)>code {
+  @apply text-sm text-rose-900 font-mono;
+}
+
+ul {
+  @apply list-disc list-inside;
+}
