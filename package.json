@@ -53,6 +53,8 @@
 	},
 	"dependencies": {
 		"@codemirror/lang-cpp": "^6.0.2",
+		"@codemirror/merge": "^6.7.2",
+		"@codemirror/state": "^6.4.1",
 		"@fsegurai/codemirror-theme-gruvbox-dark": "^6.0.5",
 		"@node-rs/argon2": "^2.0.0",
 		"@oslojs/crypto": "^1.0.1",
