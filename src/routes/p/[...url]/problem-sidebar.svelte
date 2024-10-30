@@ -8,6 +8,7 @@
 	} from '$lib/components/ui/sidebar';
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import type { PsProblem } from '$lib/server/ps/ps-adapter';
+	import { House } from 'lucide-svelte';
 	import ProblemDescription from './problem-description.svelte';
 	import ProblemTestcases from './problem-testcases.svelte';
 
@@ -20,7 +21,12 @@
 <Tabs value="problem">
 	<Sidebar>
 		<SidebarHeader>
-			<h1><a href={problem.url} target="_blank" rel="noopener noreferrer">{problem.title}</a></h1>
+			<div class="flex items-center gap-2">
+				<a href="/">
+					<House />
+				</a>
+				<h1><a href={problem.url} target="_blank" rel="noopener noreferrer">{problem.title}</a></h1>
+			</div>
 		</SidebarHeader>
 		<SidebarContent class="overflow-x-hidden">
 			<TabsContent value="problem">
