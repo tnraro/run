@@ -6,5 +6,13 @@ export default defineConfig({
 
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
+	},
+	optimizeDeps: {
+		exclude: [
+			'svelte-codemirror-editor',
+			'codemirror',
+			'@codemirror/lang-cpp',
+			'@fsegurai/codemirror-theme-gruvbox-dark'
+		]
 	}
 });

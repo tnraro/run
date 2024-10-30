@@ -7,8 +7,12 @@
 
 <SidebarProvider>
 	<ProblemSidebar problem={data} />
-	<main>
-		<SidebarTrigger />
-		{@render children()}
-	</main>
+	<div class="grid w-full grid-rows-[1fr_max-content]">
+		<main>
+			{@render children()}
+		</main>
+		<footer>
+			<SidebarTrigger />
+		</footer>
+	</div>
 </SidebarProvider>

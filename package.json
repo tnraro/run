@@ -49,15 +49,19 @@
 	},
 	"dependencies": {
 		"@cartamd/plugin-math": "^4.2.1",
+		"@codemirror/lang-cpp": "^6.0.2",
+		"@fsegurai/codemirror-theme-gruvbox-dark": "^6.0.5",
 		"@node-rs/argon2": "^2.0.0",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
 		"better-sqlite3": "^11.5.0",
 		"carta-md": "^4.6.3",
 		"cheerio": "^1.0.0",
+		"codemirror": "^6.0.1",
 		"drizzle-orm": "^0.35.3",
 		"html-to-md": "^0.8.6",
-		"katex": "^0.16.11"
+		"katex": "^0.16.11",
+		"svelte-codemirror-editor": "^1.4.1"
 	},
 	"packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee"
 }
