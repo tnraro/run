@@ -1,19 +1,19 @@
 <script lang="ts">
 	import type { PsProblem } from '$lib/server/ps/ps-adapter';
-	import { math } from '@cartamd/plugin-math';
-	import { Carta, Markdown } from 'carta-md';
+	import { micromark } from 'micromark';
+	import { math, mathHtml } from 'micromark-extension-math';
 
 	interface Props {
 		problem: PsProblem;
 	}
 	let { problem }: Props = $props();
 
-	const carta = new Carta({
-		extensions: [math()],
-		sanitizer(html) {
-			return html;
-		}
-	});
+	let html = $derived.by(() =>
+		micromark(problem.content, {
+			extensions: [math()],
+			htmlExtensions: [mathHtml()]
+		})
+	);
 </script>
 
-<Markdown {carta} value={problem.content} />
+{@html html}
