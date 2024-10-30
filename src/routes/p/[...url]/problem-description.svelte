@@ -11,7 +11,8 @@
 	let html = $derived.by(() =>
 		micromark(problem.content, {
 			extensions: [math()],
-			htmlExtensions: [mathHtml()]
+			htmlExtensions: [mathHtml()],
+			allowDangerousHtml: true
 		})
 	);
 </script>
