@@ -19,17 +19,18 @@
 
 <AccordionItem>
 	<AccordionTrigger>
-		<div>
-			Test {testcase.id.slice(0, 7)}
+		<div class="flex gap-1 w-full">
+			<p>Test {testcase.id.slice(0, 7)}</p>
+			<div class="flex-1"></div>
 			{#if testcase.state === MutationState.Pending}
-				<Badge>pending</Badge>
+				<Badge variant="secondary">pending</Badge>
 			{:else if testcase.state === MutationState.Success}
 				<Badge>passed</Badge>
 			{:else if testcase.state === MutationState.Error}
 				<Badge variant="destructive">failed</Badge>
 			{/if}
 			{#if testcase.time != null}
-				<Badge>{testcase.time}ms</Badge>
+				<Badge variant="secondary">{testcase.time}ms</Badge>
 			{/if}
 		</div>
 	</AccordionTrigger>
