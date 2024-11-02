@@ -35,7 +35,7 @@
 		<FormControl>
 			{#snippet children({ props })}
 				<FormLabel>Password</FormLabel>
-				<Input {...props} bind:value={$formData.password} />
+				<Input type="password" {...props} bind:value={$formData.password} />
 			{/snippet}
 		</FormControl>
 		<FormFieldErrors />
