@@ -134,6 +134,7 @@
 		title={data.problem.title}
 		content={data.problem.content}
 		bind:testcases
+		{code}
 		{onrun}
 		onadd={addTestcase}
 		ondelete={deleteTestcase}

@@ -13,17 +13,28 @@
 	import ProblemDescription from './problem-description.svelte';
 	import Testcase from './testcase.svelte';
 	import type { ITestcase } from './types';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		url: string;
 		title: string;
 		content: string;
 		testcases: ITestcase[];
+		code: string | undefined;
 		onrun?: (testcases: string[]) => void;
 		onadd?: (input?: string, output?: string) => void;
 		ondelete?: (id: string) => void;
 	}
-	let { url, title, content, testcases = $bindable(), onrun, onadd, ondelete }: Props = $props();
+	let {
+		url,
+		title,
+		content,
+		testcases = $bindable(),
+		code,
+		onrun,
+		onadd,
+		ondelete
+	}: Props = $props();
 </script>
 
 <Tabs value="problem">
@@ -59,6 +70,19 @@
 						onclick={() => {
 							onrun?.(testcases.map(({ id }) => id));
 						}}>Run all</Button
+					>
+					<Button
+						variant="secondary"
+						onclick={async () => {
+							if (code == null) return;
+
+							try {
+								await navigator.clipboard?.writeText(code);
+								toast.success('Code copied to clipboard');
+							} catch (error) {
+								toast.error('Failed to copy code to clipboard', { description: String(error) });
+							}
+						}}>Copy</Button
 					>
 				</div>
 			</TabsContent>
