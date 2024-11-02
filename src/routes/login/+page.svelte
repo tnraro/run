@@ -26,7 +26,7 @@
 		<FormControl>
 			{#snippet children({ props })}
 				<FormLabel>Username</FormLabel>
-				<Input {...props} bind:value={$formData.username} />
+				<Input {...props} bind:value={$formData.username} autocomplete="username" />
 			{/snippet}
 		</FormControl>
 		<FormFieldErrors />
@@ -35,7 +35,12 @@
 		<FormControl>
 			{#snippet children({ props })}
 				<FormLabel>Password</FormLabel>
-				<Input type="password" {...props} bind:value={$formData.password} />
+				<Input
+					type="password"
+					{...props}
+					bind:value={$formData.password}
+					autocomplete="current-password"
+				/>
 			{/snippet}
 		</FormControl>
 		<FormFieldErrors />
