@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Accordion } from '$lib/components/ui/accordion';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Sidebar,
@@ -10,22 +11,19 @@
 	import { MutationState } from '$lib/hooks/mutation.svelte';
 	import { House } from 'lucide-svelte';
 	import ProblemDescription from './problem-description.svelte';
-	import ProblemTestcases from './problem-testcases.svelte';
+	import Testcase from './testcase.svelte';
+	import type { ITestcase } from './types';
 
 	interface Props {
 		url: string;
 		title: string;
 		content: string;
-		testcases: {
-			input: string;
-			output: string;
-			state: MutationState;
-			receivedOutput?: string;
-			time?: number;
-		}[];
-		onrun: (testcases: string[]) => void;
+		testcases: ITestcase[];
+		onrun?: (testcases: string[]) => void;
+		onadd?: (input?: string, output?: string) => void;
+		ondelete?: (id: string) => void;
 	}
-	let { url, title, content, testcases, onrun }: Props = $props();
+	let { url, title, content, testcases = $bindable(), onrun, onadd, ondelete }: Props = $props();
 </script>
 
 <Tabs value="problem">
@@ -43,7 +41,14 @@
 				<ProblemDescription {content} />
 			</TabsContent>
 			<TabsContent value="test">
-				<ProblemTestcases {testcases} />
+				<Accordion type="multiple">
+					{#each testcases as testcase, i (testcase.id)}
+						<Testcase bind:testcase={testcases[i]} {onrun} {ondelete} />
+					{/each}
+					<div class="m-1 flex flex-col">
+						<Button onclick={() => onadd?.()}>Add test case</Button>
+					</div>
+				</Accordion>
 			</TabsContent>
 		</SidebarContent>
 		<SidebarFooter>
@@ -52,7 +57,7 @@
 					<Button
 						disabled={testcases.some((testcase) => testcase.state === MutationState.Pending)}
 						onclick={() => {
-							onrun(testcases.map(({ input }) => input));
+							onrun?.(testcases.map(({ id }) => id));
 						}}>Run all</Button
 					>
 				</div>

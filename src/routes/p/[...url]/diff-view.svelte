@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { MergeView } from '@codemirror/merge';
-	import { basicSetup, EditorView } from 'codemirror';
 	import { EditorState } from '@codemirror/state';
+	import { EditorView } from 'codemirror';
 	import { onDestroy, onMount } from 'svelte';
+	import { diffViewSetup } from './diff-view-setup';
 
 	interface Props {
 		a?: string;
@@ -16,23 +17,27 @@
 	let view: MergeView;
 
 	$effect(() => {
-		console.log(view, b);
+		const value = b;
 		if (view == null) return;
 		view.a.dispatch({
 			changes: {
 				from: 0,
 				to: view.a.state.doc.length,
-				insert: b
+				insert: value
 			}
 		});
 	});
+
+	let aChangedByView = false;
 	$effect(() => {
-		if (view == null) return;
+		const value = a;
+		if (view == null || aChangedByView) return;
+		aChangedByView = false;
 		view.b.dispatch({
 			changes: {
 				from: 0,
 				to: view.b.state.doc.length,
-				insert: a
+				insert: value
 			}
 		});
 	});
@@ -41,14 +46,15 @@
 		view = new MergeView({
 			a: {
 				doc: b,
-				extensions: [basicSetup, EditorView.editable.of(false), EditorState.readOnly.of(true)]
+				extensions: [diffViewSetup(), EditorView.editable.of(false), EditorState.readOnly.of(true)]
 			},
 			b: {
 				doc: a,
 				extensions: [
-					basicSetup,
+					diffViewSetup(),
 					EditorState.transactionFilter.of((tr) => {
 						if (tr.docChanged) {
+							aChangedByView = true;
 							a = tr.newDoc.toString();
 							onchangea?.(a);
 						}
@@ -57,7 +63,6 @@
 				]
 			},
 			parent: div,
-			revertControls: 'b-to-a',
 			orientation: 'b-a'
 		});
 		onready?.(view);
