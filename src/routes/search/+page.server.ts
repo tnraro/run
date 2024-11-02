@@ -7,7 +7,9 @@ import { searchSchema } from './schema';
 export const actions = {
 	default: async (event) => {
 		const form = await superValidate(event, zod(searchSchema));
-
+		if (!event.locals.user) {
+			return fail(403, { form });
+		}
 		if (!form.valid) {
 			return fail(400, { form });
 		}
