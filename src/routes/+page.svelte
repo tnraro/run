@@ -1,10 +1,4 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Search } from 'lucide-svelte';
-	import { searchSchema, type SearchSchema } from './search/schema';
-	import { superForm, type SuperValidated, type Infer } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
 	import {
 		FormButton,
 		FormControl,
@@ -13,6 +7,11 @@
 		FormFieldErrors,
 		FormLabel
 	} from '$lib/components/ui/form';
+	import { Input } from '$lib/components/ui/input';
+	import { Search } from 'lucide-svelte';
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { searchSchema } from './search/schema';
 
 	let { data } = $props();
 

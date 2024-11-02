@@ -17,7 +17,7 @@
 		"db:studio": "drizzle-kit studio"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^3.3.1",
+		"@sveltejs/adapter-node": "^5.2.9",
 		"@sveltejs/kit": "^2.7.3",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@types/better-sqlite3": "^7.6.11",
@@ -33,6 +33,7 @@
 		"globals": "^15.11.0",
 		"lucide-svelte": "^0.454.0",
 		"mdsvex": "^0.12.3",
+		"mode-watcher": "^0.4.1",
 		"prettier": "^3.3.3",
 		"prettier-plugin-svelte": "^3.2.7",
 		"prettier-plugin-tailwindcss": "^0.6.8",
@@ -40,6 +41,7 @@
 		"svelte": "^5.1.7",
 		"svelte-check": "^4.0.5",
 		"svelte-radix": "^2.0.1",
+		"svelte-sonner": "^0.3.28",
 		"sveltekit-superforms": "^2.20.0",
 		"tailwind-merge": "^2.5.4",
 		"tailwind-variants": "^0.2.1",

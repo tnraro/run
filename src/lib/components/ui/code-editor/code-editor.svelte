@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { cpp } from '@codemirror/lang-cpp';
 	import { gruvboxDark } from '@fsegurai/codemirror-theme-gruvbox-dark';
-	import { tick } from 'svelte';
+	import type { EditorView } from 'codemirror';
 	import CodeMirror from 'svelte-codemirror-editor';
-	import template from './template.cpp?raw';
 
 	interface Props {
 		value?: string;
 		onchange?: (value: string) => void;
+		onready?: (view: EditorView) => void;
 	}
-	let { value = $bindable(), onchange }: Props = $props();
+	let { value = $bindable(), onchange, onready }: Props = $props();
 </script>
 
 <CodeMirror
@@ -24,10 +24,6 @@
 			height: '100%'
 		}
 	}}
-	on:ready={() => {
-		tick().then(() => {
-			if (value == null || value.trim().length === 0) value = template;
-		});
-	}}
+	on:ready={(e) => onready?.(e.detail)}
 	on:change={(e) => onchange?.(e.detail)}
 />
