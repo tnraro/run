@@ -1,0 +1,11 @@
+services:
+  app:
+    image: ghcr.io/tnraro/run:main
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: local.db
+      ORIGIN: ${ORIGIN}
+    cap_drop:
+      - ALL
+    ports:
+      - ${PORT}:3000

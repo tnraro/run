@@ -1,0 +1,24 @@
+diff --git a/bin.cjs b/bin.cjs
+index a97c4f3ee85a8600ac2a99fcfb1d294096883983..b7292f094fb97808f53c06497d23affa090663c3 100755
+--- a/bin.cjs
++++ b/bin.cjs
+@@ -83173,15 +83173,15 @@ var init_push = __esm({
+ [${source_default.blue("i")}] No changes detected`);
+         } else {
+           if (!("driver" in credentials2)) {
+-            await db.query("begin");
++            await db.run("begin");
+             try {
+               for (const dStmnt of statementsToExecute) {
+-                await db.query(dStmnt);
++                await db.run(dStmnt);
+               }
+-              await db.query("commit");
++              await db.run("commit");
+             } catch (e2) {
+               console.error(e2);
+-              await db.query("rollback");
++              await db.run("rollback");
+               process.exit(1);
+             }
+           }
