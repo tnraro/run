@@ -87,11 +87,11 @@
   }
 
   pre:has(code) {
-    @apply bg-slate-50 p-2 overflow-x-auto font-mono;
+    @apply bg-background p-2 overflow-x-auto font-mono;
   }
 
   :not(pre)>code {
-    @apply font-mono text-sm text-rose-900;
+    @apply font-mono text-sm text-destructive;
   }
 
   ul {

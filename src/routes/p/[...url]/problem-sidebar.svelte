@@ -13,31 +13,32 @@
 	import ProblemDescription from './problem-description.svelte';
 	import Testcase from './testcase.svelte';
 	import type { ITestcase } from './types';
-	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		url: string;
 		title: string;
 		content: string;
 		testcases: ITestcase[];
-		code: string | undefined;
-		onrun?: (testcases: string[]) => void;
+		tab: string;
+		onrun?: (testcases?: string[]) => void;
 		onadd?: (input?: string, output?: string) => void;
 		ondelete?: (id: string) => void;
+		oncopy?: () => void;
 	}
 	let {
 		url,
 		title,
 		content,
 		testcases = $bindable(),
-		code,
+		tab,
 		onrun,
 		onadd,
-		ondelete
+		ondelete,
+		oncopy
 	}: Props = $props();
 </script>
 
-<Tabs value="problem">
+<Tabs bind:value={tab}>
 	<Sidebar>
 		<SidebarHeader>
 			<div class="flex items-center gap-2">
@@ -68,22 +69,10 @@
 					<Button
 						disabled={testcases.some((testcase) => testcase.state === MutationState.Pending)}
 						onclick={() => {
-							onrun?.(testcases.map(({ id }) => id));
+							onrun?.();
 						}}>Run all</Button
 					>
-					<Button
-						variant="secondary"
-						onclick={async () => {
-							if (code == null) return;
-
-							try {
-								await navigator.clipboard?.writeText(code);
-								toast.success('Code copied to clipboard');
-							} catch (error) {
-								toast.error('Failed to copy code to clipboard', { description: String(error) });
-							}
-						}}>Copy</Button
-					>
+					<Button variant="secondary" onclick={oncopy}>Copy</Button>
 				</div>
 			</TabsContent>
 			<TabsList class="grid grid-cols-2">

@@ -1,10 +1,14 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button';
 	import CodeEditor from '$lib/components/ui/code-editor/code-editor.svelte';
 	import template from '$lib/components/ui/code-editor/template.cpp?raw';
+	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { SidebarProvider, SidebarTrigger } from '$lib/components/ui/sidebar';
 	import { hash } from '$lib/utils/hash';
 	import { psCompare } from '$lib/utils/ps-trim';
 	import 'katex/dist/katex.min.css';
+	import { Copy, Moon, Play, Sun } from 'lucide-svelte';
+	import { toggleMode } from 'mode-watcher';
 	import { onMount, tick } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import type { ApiPResponse } from '../../api/p/+server';
@@ -15,6 +19,9 @@
 
 	let code = $state<string>();
 	let testcases = $state<ITestcase[]>([]);
+
+	let sidebarOpen = $state(false);
+	let tab = $state('problem');
 
 	onMount(() => {
 		loadCode();
@@ -80,18 +87,19 @@
 		testcases = testcases.filter((tc) => tc.id !== id);
 	}
 
-	async function onrun(testcaseIds: string[]) {
+	async function onrun(testcaseIds?: string[]) {
+		const ids = testcaseIds ?? testcases.map(({ id }) => id);
 		try {
 			testcases = testcases.map((tc) => ({
 				...tc,
-				state: testcaseIds.includes(tc.id) ? 1 : tc.state
+				state: ids.includes(tc.id) ? 1 : tc.state
 			}));
 			const res = await fetch('/api/p', {
 				method: 'POST',
 				body: JSON.stringify({
 					code,
 					testcases: testcases
-						.filter((tc) => testcaseIds.includes(tc.id))
+						.filter((tc) => ids.includes(tc.id))
 						.map((tc) => ({
 							id: tc.id,
 							input: tc.input
@@ -115,7 +123,7 @@
 		} catch (error) {
 			testcases = testcases.map((tc) => ({
 				...tc,
-				state: testcaseIds.includes(tc.id) ? 3 : tc.state
+				state: ids.includes(tc.id) ? 3 : tc.state
 			}));
 			if (error instanceof Response) {
 				const body = await error.text();
@@ -126,25 +134,49 @@
 			console.error(error);
 		}
 	}
+	async function copyCode() {
+		if (code == null) return;
+
+		try {
+			await navigator.clipboard?.writeText(code);
+			toast.success('Code copied to clipboard');
+		} catch (error) {
+			toast.error('Failed to copy code to clipboard', { description: String(error) });
+		}
+	}
 </script>
 
-<SidebarProvider>
+<SidebarProvider bind:open={sidebarOpen}>
 	<ProblemSidebar
 		url={data.problem.url}
 		title={data.problem.title}
 		content={data.problem.content}
 		bind:testcases
-		{code}
+		{tab}
 		{onrun}
 		onadd={addTestcase}
 		ondelete={deleteTestcase}
+		oncopy={copyCode}
 	/>
 	<div class="grid w-full grid-rows-[1fr_max-content]">
-		<main>
+		<ScrollArea>
 			<CodeEditor bind:value={code} />
-		</main>
-		<footer>
+		</ScrollArea>
+		<footer class="flex justify-between gap-1">
 			<SidebarTrigger />
+			<Button
+				disabled={testcases.some((testcase) => testcase.state === 1)}
+				onclick={() => {
+					tab = 'test';
+					sidebarOpen = true;
+					onrun();
+				}}><Play /></Button
+			>
+			<Button onclick={copyCode} variant="secondary"><Copy /></Button>
+			<Button onclick={toggleMode} variant="ghost">
+				<Sun class="scale-100 dark:scale-0" />
+				<Moon class="absolute scale-0 dark:scale-100" />
+			</Button>
 		</footer>
 	</div>
 </SidebarProvider>
