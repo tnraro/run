@@ -39,29 +39,30 @@ export async function buildAndRun(code: string, inputs: { id: string; input: str
 		throw new GccError(res);
 	}
 
-	return await Promise.all(
-		inputs.map(async ({ id, input }) => {
-			try {
-				const res = await exec({
-					command: OUT_PATH,
-					args: [],
-					stdin: input,
-					timeout: 5000
-				});
-				return {
-					id,
-					output: res.signal == null ? res.output : res.signal,
-					time: res.time
-				};
-			} catch (error) {
-				return {
-					id,
-					output: String(error),
-					time: -1
-				};
-			}
-		})
-	);
+	const result = [];
+	for (const { id, input } of inputs) {
+		try {
+			const res = await exec({
+				command: OUT_PATH,
+				args: [],
+				stdin: input,
+				timeout: 5000
+			});
+			result.push({
+				id,
+				output: res.signal == null ? res.output : res.signal,
+				time: res.time
+			});
+		} catch (error) {
+			result.push({
+				id,
+				output: String(error),
+				time: -1
+			});
+		}
+	}
+
+	return result;
 }
 
 function exec(options: { command: string; args: string[]; stdin?: string; timeout: number }) {
