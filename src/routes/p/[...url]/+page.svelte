@@ -14,6 +14,7 @@
 	import type { ApiPResponse } from '../../api/p/+server';
 	import ProblemSidebar from './problem-sidebar.svelte';
 	import type { ITestcase } from './types';
+	import { storable } from '$lib/hooks/storable';
 
 	let { data } = $props();
 
@@ -24,6 +25,8 @@
 
 	let tab = $state('problem');
 
+	const problems = storable<{ title: string; url: string }[]>('problems', () => []);
+
 	onMount(() => {
 		loadCode();
 		loadTestcase();
@@ -32,6 +35,11 @@
 				addTestcase(tc.input, tc.output);
 			}
 		}
+		problems.update((ps) => {
+			const url = `/p/${data.id}`;
+			if (ps.some((p) => p.url === url)) return ps;
+			return [{ title: data.problem.title, url }, ...ps].slice(0, 3);
+		});
 	});
 
 	$effect(() => {
