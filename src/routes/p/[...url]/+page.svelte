@@ -11,7 +11,7 @@
 	import 'katex/dist/katex.min.css';
 	import { Copy, Moon, Play, Sun } from 'lucide-svelte';
 	import { toggleMode } from 'mode-watcher';
-	import { onMount, setContext, tick } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import ProblemSidebar from './problem-sidebar.svelte';
 
@@ -22,14 +22,9 @@
 		sidebar.setOpenMobile(true);
 	});
 
-	let code = $state<string>();
-	onMount(() => {
-		loadCode();
-	});
-	$effect(() => {
-		if (code == null) return;
-		const key = `${hash(data.problem.url)}:code`;
-		localStorage.setItem(key, code);
+	const code = storable<string>(`${hash(data.problem.url)}:code`, () => template, {
+		serialize: (s) => s,
+		deserialize: (s) => s
 	});
 
 	const testcases = new Testcases();
@@ -57,14 +52,6 @@
 		});
 	});
 
-	function loadCode() {
-		const key = `${hash(data.problem.url)}:code`;
-		const x = localStorage.getItem(key);
-		tick().then(() => {
-			code = x == null ? template : x;
-		});
-	}
-
 	async function onrun(testcaseIds?: string[]) {
 		const filter = testcaseIds != null ? new Set(testcaseIds) : undefined;
 		try {
@@ -72,7 +59,7 @@
 			const res = await fetch('/api/p', {
 				method: 'POST',
 				body: JSON.stringify({
-					code,
+					code: $code,
 					testcases: testcases.remoteSnapshot(filter)
 				})
 			});
@@ -92,10 +79,10 @@
 		}
 	}
 	async function copyCode() {
-		if (code == null) return;
+		if ($code == null) return;
 
 		try {
-			await navigator.clipboard?.writeText(code);
+			await navigator.clipboard?.writeText($code);
 			toast.success('Code copied to clipboard');
 		} catch (error) {
 			toast.error('Failed to copy code to clipboard', { description: String(error) });
@@ -113,7 +100,7 @@
 />
 <div class="grid w-full grid-rows-[1fr_max-content]">
 	<ScrollArea>
-		<CodeEditor bind:value={code} />
+		<CodeEditor bind:value={$code} />
 	</ScrollArea>
 	<footer class="flex justify-between gap-1">
 		<SidebarTrigger />

@@ -1,6 +1,15 @@
-export function storable<T>(key: string, defaultFn: () => T) {
+export function storable<T>(
+	key: string,
+	defaultFn: () => T,
+	options?: {
+		serialize?: (data: T) => string;
+		deserialize?: (data: string) => T;
+	}
+) {
 	type Listener = (data: T) => void;
 	const listeners = new Set<Listener>();
+	const serialize = options?.serialize ?? JSON.stringify;
+	const deserialize = options?.deserialize ?? JSON.parse;
 	return {
 		set,
 		subscribe,
@@ -9,10 +18,10 @@ export function storable<T>(key: string, defaultFn: () => T) {
 	function get(): T {
 		if (typeof window === 'undefined') return defaultFn();
 		const x = localStorage.getItem(key);
-		return x != null ? JSON.parse(x) : defaultFn();
+		return x != null ? deserialize(x) : defaultFn();
 	}
 	function set(data: T) {
-		localStorage.setItem(key, JSON.stringify(data));
+		localStorage.setItem(key, serialize(data));
 		listeners.forEach((l) => l(data));
 	}
 	function update(fn: (data: T) => T) {
