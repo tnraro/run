@@ -4,29 +4,27 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { MutationState } from '$lib/hooks/mutation.svelte';
+	import { Testcase } from '$lib/hooks/testcases.svelte';
 	import { Play, Trash2 } from 'lucide-svelte';
 	import DiffView from './diff-view.svelte';
-	import type { ITestcase } from './types';
 
 	interface Props {
-		testcase: ITestcase;
+		testcase: Testcase;
 		onrun?: (testcases: string[]) => void;
-		ondelete?: (id: string) => void;
 	}
-	let { testcase = $bindable(), onrun, ondelete }: Props = $props();
+	let { testcase, onrun }: Props = $props();
 </script>
 
 <AccordionItem>
 	<AccordionTrigger>
-		<div class="flex gap-1 w-full">
+		<div class="flex w-full gap-1">
 			<p>Test {testcase.id.slice(0, 7)}</p>
 			<div class="flex-1"></div>
-			{#if testcase.state === MutationState.Pending}
+			{#if testcase.isPending()}
 				<Badge variant="secondary">pending</Badge>
-			{:else if testcase.state === MutationState.Success}
+			{:else if testcase.isSuccess()}
 				<Badge>passed</Badge>
-			{:else if testcase.state === MutationState.Error}
+			{:else if testcase.isError()}
 				<Badge variant="destructive">failed</Badge>
 			{/if}
 			{#if testcase.time != null}
@@ -47,7 +45,7 @@
 				size="sm"
 				variant="destructive"
 				onclick={() => {
-					ondelete?.(testcase.id);
+					testcase.delete();
 				}}><Trash2 /></Button
 			>
 		</div>

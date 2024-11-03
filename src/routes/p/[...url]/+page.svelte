@@ -3,57 +3,28 @@
 	import CodeEditor from '$lib/components/ui/code-editor/code-editor.svelte';
 	import template from '$lib/components/ui/code-editor/template.cpp?raw';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import { SidebarProvider, SidebarTrigger, useSidebar } from '$lib/components/ui/sidebar';
+	import { SidebarTrigger, useSidebar } from '$lib/components/ui/sidebar';
+	import { MutationState } from '$lib/hooks/mutation.svelte';
+	import { storable } from '$lib/hooks/storable';
+	import { Testcases } from '$lib/hooks/testcases.svelte';
 	import { hash } from '$lib/utils/hash';
-	import { psCompare } from '$lib/utils/ps-trim';
 	import 'katex/dist/katex.min.css';
 	import { Copy, Moon, Play, Sun } from 'lucide-svelte';
 	import { toggleMode } from 'mode-watcher';
-	import { onMount, tick } from 'svelte';
+	import { onMount, setContext, tick } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import type { ApiPResponse } from '../../api/p/+server';
 	import ProblemSidebar from './problem-sidebar.svelte';
-	import type { ITestcase } from './types';
-	import { storable } from '$lib/hooks/storable';
 
 	let { data } = $props();
 
-	let code = $state<string>();
-	let testcases = $state<ITestcase[]>([]);
-
 	const sidebar = useSidebar();
-
-	let tab = $state('problem');
-
-	const problems = storable<{ title: string; url: string }[]>('problems', () => []);
-
 	onMount(() => {
-		loadCode();
-		loadTestcase();
-		if (testcases.length === 0) {
-			for (const tc of data.problem.testcases) {
-				addTestcase(tc.input, tc.output);
-			}
-		}
-		problems.update((ps) => {
-			const url = `/p/${data.id}`;
-			if (ps.some((p) => p.url === url)) return ps;
-			return [{ title: data.problem.title, url }, ...ps].slice(0, 3);
-		});
+		sidebar.setOpenMobile(true);
 	});
 
-	$effect(() => {
-		const key = `${hash(data.problem.url)}:testcases`;
-		localStorage.setItem(
-			key,
-			JSON.stringify(
-				testcases.map((tc) => ({
-					id: tc.id,
-					input: tc.input,
-					output: tc.output
-				}))
-			)
-		);
+	let code = $state<string>();
+	onMount(() => {
+		loadCode();
 	});
 	$effect(() => {
 		if (code == null) return;
@@ -61,8 +32,29 @@
 		localStorage.setItem(key, code);
 	});
 
+	const testcases = new Testcases();
+	setContext('testcases', testcases);
 	onMount(() => {
-		sidebar.setOpenMobile(true);
+		testcases.new($testcasesStore.length > 0 ? $testcasesStore : data.problem.testcases);
+	});
+
+	const testcasesStore = storable<{ id: string; input: string; output: string }[]>(
+		`${hash(data.problem.url)}:testcases`,
+		() => []
+	);
+	$effect(() => {
+		testcasesStore.set(testcases.localSnapshot());
+	});
+
+	let tab = $state('problem');
+
+	const problems = storable<{ title: string; url: string }[]>('problems', () => []);
+	onMount(() => {
+		problems.update((ps) => {
+			const url = `/p/${data.id}`;
+			if (ps.some((p) => p.url === url)) return ps;
+			return [{ title: data.problem.title, url }, ...ps].slice(0, 3);
+		});
 	});
 
 	function loadCode() {
@@ -72,72 +64,24 @@
 			code = x == null ? template : x;
 		});
 	}
-	function loadTestcase() {
-		const key = `${hash(data.problem.url)}:testcases`;
-		const x = localStorage.getItem(key);
-		if (x == null) return;
-		const y = JSON.parse(x);
-		for (const { id, input, output } of y) {
-			testcases.push({
-				id,
-				input,
-				output,
-				state: 0
-			});
-		}
-	}
-
-	function addTestcase(input?: string, output?: string) {
-		testcases.push({
-			id: crypto.randomUUID(),
-			input: input ?? '',
-			output: output ?? '',
-			state: 0
-		});
-	}
-
-	function deleteTestcase(id: string) {
-		testcases = testcases.filter((tc) => tc.id !== id);
-	}
 
 	async function onrun(testcaseIds?: string[]) {
-		const ids = testcaseIds ?? testcases.map(({ id }) => id);
+		const filter = testcaseIds != null ? new Set(testcaseIds) : undefined;
 		try {
-			testcases = testcases.map((tc) => ({
-				...tc,
-				state: ids.includes(tc.id) ? 1 : tc.state
-			}));
+			testcases.setState(MutationState.Pending, filter);
 			const res = await fetch('/api/p', {
 				method: 'POST',
 				body: JSON.stringify({
 					code,
-					testcases: testcases
-						.filter((tc) => ids.includes(tc.id))
-						.map((tc) => ({
-							id: tc.id,
-							input: tc.input
-						}))
+					testcases: testcases.remoteSnapshot(filter)
 				})
 			});
 			if (!res.ok) {
 				throw res;
 			}
-			const body = (await res.json()) as ApiPResponse;
-
-			for (const testcase of body) {
-				const index = testcases.findIndex((tc) => tc.id === testcase.id);
-				if (index !== -1) {
-					const isSame = psCompare(testcases[index].output, testcase.output);
-					testcases[index].state = isSame ? 2 : 3;
-					testcases[index].receivedOutput = testcase.output;
-					testcases[index].time = testcase.time;
-				}
-			}
+			testcases.setResult(await res.json());
 		} catch (error) {
-			testcases = testcases.map((tc) => ({
-				...tc,
-				state: ids.includes(tc.id) ? 3 : tc.state
-			}));
+			testcases.setState(MutationState.Error);
 			if (error instanceof Response) {
 				const body = await error.text();
 				toast.error(body, { duration: 1_000_000 });
@@ -163,11 +107,8 @@
 	url={data.problem.url}
 	title={data.problem.title}
 	content={data.problem.content}
-	bind:testcases
 	{tab}
 	{onrun}
-	onadd={addTestcase}
-	ondelete={deleteTestcase}
 	oncopy={copyCode}
 />
 <div class="grid w-full grid-rows-[1fr_max-content]">
@@ -177,7 +118,7 @@
 	<footer class="flex justify-between gap-1">
 		<SidebarTrigger />
 		<Button
-			disabled={testcases.some((testcase) => testcase.state === 1)}
+			disabled={testcases.isPending}
 			onclick={() => {
 				tab = 'test';
 				sidebar.setOpenMobile(true);

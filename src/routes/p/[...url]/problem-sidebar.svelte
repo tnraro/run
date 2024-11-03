@@ -8,34 +8,23 @@
 		SidebarHeader
 	} from '$lib/components/ui/sidebar';
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
-	import { MutationState } from '$lib/hooks/mutation.svelte';
+	import type { Testcases } from '$lib/hooks/testcases.svelte';
 	import { House } from 'lucide-svelte';
+	import { getContext } from 'svelte';
 	import ProblemDescription from './problem-description.svelte';
 	import Testcase from './testcase.svelte';
-	import type { ITestcase } from './types';
 
 	interface Props {
 		url: string;
 		title: string;
 		content: string;
-		testcases: ITestcase[];
 		tab: string;
 		onrun?: (testcases?: string[]) => void;
-		onadd?: (input?: string, output?: string) => void;
-		ondelete?: (id: string) => void;
 		oncopy?: () => void;
 	}
-	let {
-		url,
-		title,
-		content,
-		testcases = $bindable(),
-		tab,
-		onrun,
-		onadd,
-		ondelete,
-		oncopy
-	}: Props = $props();
+	let { url, title, content, tab, onrun, oncopy }: Props = $props();
+
+	const testcases = getContext<Testcases>('testcases');
 </script>
 
 <Tabs bind:value={tab}>
@@ -54,11 +43,11 @@
 			</TabsContent>
 			<TabsContent value="test">
 				<Accordion type="multiple">
-					{#each testcases as testcase, i (testcase.id)}
-						<Testcase bind:testcase={testcases[i]} {onrun} {ondelete} />
+					{#each testcases as testcase (testcase.id)}
+						<Testcase {testcase} {onrun} />
 					{/each}
 					<div class="m-1 flex flex-col">
-						<Button onclick={() => onadd?.()}>Add test case</Button>
+						<Button onclick={() => testcases.add()}>Add test case</Button>
 					</div>
 				</Accordion>
 			</TabsContent>
@@ -67,7 +56,7 @@
 			<TabsContent value="test">
 				<div class="flex gap-1">
 					<Button
-						disabled={testcases.some((testcase) => testcase.state === MutationState.Pending)}
+						disabled={testcases.isPending}
 						onclick={() => {
 							onrun?.();
 						}}>Run all</Button
