@@ -32,7 +32,7 @@ export async function buildAndRun(code: string, inputs: { id: string; input: str
 			'-fstack-protector',
 			'-Wno-unused-variable'
 		],
-		timeout: 5000
+		timeout: 600000
 	});
 
 	if (res.code != 0 || res.signal != null) {
