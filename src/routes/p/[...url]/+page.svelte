@@ -3,7 +3,7 @@
 	import CodeEditor from '$lib/components/ui/code-editor/code-editor.svelte';
 	import template from '$lib/components/ui/code-editor/template.cpp?raw';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
-	import { SidebarProvider, SidebarTrigger } from '$lib/components/ui/sidebar';
+	import { SidebarProvider, SidebarTrigger, useSidebar } from '$lib/components/ui/sidebar';
 	import { hash } from '$lib/utils/hash';
 	import { psCompare } from '$lib/utils/ps-trim';
 	import 'katex/dist/katex.min.css';
@@ -20,7 +20,8 @@
 	let code = $state<string>();
 	let testcases = $state<ITestcase[]>([]);
 
-	let sidebarOpen = $state(false);
+	const sidebar = useSidebar();
+
 	let tab = $state('problem');
 
 	onMount(() => {
@@ -50,6 +51,10 @@
 		if (code == null) return;
 		const key = `${hash(data.problem.url)}:code`;
 		localStorage.setItem(key, code);
+	});
+
+	onMount(() => {
+		sidebar.setOpenMobile(true);
 	});
 
 	function loadCode() {
@@ -146,37 +151,35 @@
 	}
 </script>
 
-<SidebarProvider bind:open={sidebarOpen}>
-	<ProblemSidebar
-		url={data.problem.url}
-		title={data.problem.title}
-		content={data.problem.content}
-		bind:testcases
-		{tab}
-		{onrun}
-		onadd={addTestcase}
-		ondelete={deleteTestcase}
-		oncopy={copyCode}
-	/>
-	<div class="grid w-full grid-rows-[1fr_max-content]">
-		<ScrollArea>
-			<CodeEditor bind:value={code} />
-		</ScrollArea>
-		<footer class="flex justify-between gap-1">
-			<SidebarTrigger />
-			<Button
-				disabled={testcases.some((testcase) => testcase.state === 1)}
-				onclick={() => {
-					tab = 'test';
-					sidebarOpen = true;
-					onrun();
-				}}><Play /></Button
-			>
-			<Button onclick={copyCode} variant="secondary"><Copy /></Button>
-			<Button onclick={toggleMode} variant="ghost">
-				<Sun class="scale-100 dark:scale-0" />
-				<Moon class="absolute scale-0 dark:scale-100" />
-			</Button>
-		</footer>
-	</div>
-</SidebarProvider>
+<ProblemSidebar
+	url={data.problem.url}
+	title={data.problem.title}
+	content={data.problem.content}
+	bind:testcases
+	{tab}
+	{onrun}
+	onadd={addTestcase}
+	ondelete={deleteTestcase}
+	oncopy={copyCode}
+/>
+<div class="grid w-full grid-rows-[1fr_max-content]">
+	<ScrollArea>
+		<CodeEditor bind:value={code} />
+	</ScrollArea>
+	<footer class="flex justify-between gap-1">
+		<SidebarTrigger />
+		<Button
+			disabled={testcases.some((testcase) => testcase.state === 1)}
+			onclick={() => {
+				tab = 'test';
+				sidebar.setOpenMobile(true);
+				onrun();
+			}}><Play /></Button
+		>
+		<Button onclick={copyCode} variant="secondary"><Copy /></Button>
+		<Button onclick={toggleMode} variant="ghost">
+			<Sun class="scale-100 dark:scale-0" />
+			<Moon class="absolute scale-0 dark:scale-100" />
+		</Button>
+	</footer>
+</div>

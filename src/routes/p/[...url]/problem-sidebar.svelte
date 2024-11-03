@@ -39,7 +39,7 @@
 </script>
 
 <Tabs bind:value={tab}>
-	<Sidebar>
+	<Sidebar collapsible="offcanvas">
 		<SidebarHeader>
 			<div class="flex items-center gap-2">
 				<a href="/">
