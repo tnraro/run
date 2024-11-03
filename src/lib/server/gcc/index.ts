@@ -23,14 +23,14 @@ export async function buildAndRun(code: string, inputs: { id: string; input: str
 			OUT_PATH,
 			'-Wall',
 			'-Wextra',
-			'-O3',
 			'-Wconversion',
+			'-Wno-unused-variable',
+			'-O3',
 			'-g0',
 			'-std=c++17',
-			'-fsanitize=address',
+			// '-fsanitize=address',
 			'-fsanitize=undefined',
-			'-fstack-protector',
-			'-Wno-unused-variable'
+			'-fstack-protector'
 		],
 		timeout: 600000
 	});
