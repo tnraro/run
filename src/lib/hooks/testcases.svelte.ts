@@ -1,4 +1,5 @@
 import { psCompare } from '$lib/utils/ps-trim';
+import type { ApiRunResponse } from '../../routes/api/run/+server';
 import { MutationState } from './mutation.svelte';
 
 export interface ITestcase {
@@ -91,13 +92,7 @@ export class Testcases {
 			tc.state = state;
 		}
 	}
-	setResult(
-		result: {
-			id: string;
-			output: string;
-			time: number;
-		}[]
-	) {
+	setResult(result: ApiRunResponse) {
 		const map = new Map(result.map((x) => [x.id, x]));
 		for (const tc of this.#testcases) {
 			const receivedTestcase = map.get(tc.id);

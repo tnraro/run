@@ -18,6 +18,7 @@ export default defineConfig({
 			'svelte-codemirror-editor',
 			'codemirror',
 			'@codemirror/lang-cpp',
+			'@codemirror/lang-javascript',
 			'@fsegurai/codemirror-theme-gruvbox-dark'
 		]
 	}

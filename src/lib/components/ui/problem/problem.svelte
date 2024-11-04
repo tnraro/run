@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import CodeEditor from '$lib/components/ui/code-editor/code-editor.svelte';
-	import template from '$lib/components/ui/code-editor/template.cpp?raw';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { SidebarTrigger, useSidebar } from '$lib/components/ui/sidebar';
 	import { MutationState } from '$lib/hooks/mutation.svelte';
@@ -13,6 +12,7 @@
 	import { toggleMode } from 'mode-watcher';
 	import { onMount, setContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
+	import { Code } from '../code-editor/context.svelte';
 	import ProblemSidebar from './problem-sidebar.svelte';
 
 	interface Props {
@@ -26,10 +26,8 @@
 		sidebar.setOpenMobile(true);
 	});
 
-	const code = storable<string>(`${id}:code`, () => template, {
-		serialize: (s) => s,
-		deserialize: (s) => s
-	});
+	const code = new Code(id);
+	setContext('code', code);
 
 	const testcases = new Testcases();
 	setContext('testcases', testcases);
@@ -51,10 +49,11 @@
 		const filter = testcaseIds != null ? new Set(testcaseIds) : undefined;
 		try {
 			testcases.setState(MutationState.Pending, filter);
-			const res = await fetch('/api/p', {
+			const res = await fetch('/api/run', {
 				method: 'POST',
 				body: JSON.stringify({
-					code: $code,
+					lang: code.lang,
+					code: code.code,
 					testcases: testcases.remoteSnapshot(filter)
 				})
 			});
@@ -74,13 +73,15 @@
 		}
 	}
 	async function copyCode() {
-		if ($code == null) return;
-
 		try {
-			await navigator.clipboard?.writeText($code);
+			await code.copy();
 			toast.success('Code copied to clipboard');
 		} catch (error) {
-			toast.error('Failed to copy code to clipboard', { description: String(error) });
+			if (error instanceof Error) {
+				toast.error('Failed to copy code to clipboard', { description: error.message });
+			} else {
+				toast.error('Failed to copy code to clipboard', { description: String(error) });
+			}
 		}
 	}
 </script>
@@ -95,7 +96,7 @@
 />
 <div class="grid w-full grid-rows-[1fr_max-content]">
 	<ScrollArea>
-		<CodeEditor bind:value={$code} />
+		<CodeEditor lang={code.lang} bind:value={code.code} />
 	</ScrollArea>
 	<footer class="flex justify-between gap-1">
 		<SidebarTrigger />

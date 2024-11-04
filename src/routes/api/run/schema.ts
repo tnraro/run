@@ -1,6 +1,8 @@
+import { runners, type RunnerName } from '$lib/server/run';
 import { z } from 'zod';
 
 export const formSchema = z.object({
+	lang: z.enum(runners.map((r) => r.language) as RunnerName).default('cpp'),
 	code: z.string(),
 	testcases: z
 		.array(

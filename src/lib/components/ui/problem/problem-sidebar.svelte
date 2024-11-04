@@ -13,6 +13,7 @@
 	import { getContext } from 'svelte';
 	import ProblemDescription from './problem-description.svelte';
 	import Testcase from './testcase.svelte';
+	import ProblemSettings from './problem-settings.svelte';
 
 	interface Props {
 		url: string;
@@ -51,6 +52,9 @@
 					</div>
 				</Accordion>
 			</TabsContent>
+			<TabsContent value="settings">
+				<ProblemSettings />
+			</TabsContent>
 		</SidebarContent>
 		<SidebarFooter>
 			<TabsContent value="test">
@@ -64,9 +68,10 @@
 					<Button variant="secondary" onclick={oncopy}>Copy</Button>
 				</div>
 			</TabsContent>
-			<TabsList class="grid grid-cols-2">
+			<TabsList class="grid grid-cols-3">
 				<TabsTrigger value="problem">Problem</TabsTrigger>
 				<TabsTrigger value="test">Test</TabsTrigger>
+				<TabsTrigger value="settings">Settings</TabsTrigger>
 			</TabsList>
 		</SidebarFooter>
 	</Sidebar>
