@@ -1,6 +1,6 @@
 import { json, text } from '@sveltejs/kit';
 import { formSchema } from './schema.js';
-import { buildAndRun, GccError } from '$lib/server/gcc/index.js';
+import { buildAndRun, GccError } from '$lib/server/run/gcc/index.js';
 import { ZodError } from 'zod';
 export type ApiPResponse = Awaited<ReturnType<typeof buildAndRun>>;
 export async function POST({ request, locals }) {
