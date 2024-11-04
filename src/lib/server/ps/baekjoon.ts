@@ -1,6 +1,17 @@
 import { load } from 'cheerio';
 import type { PsAdapter } from './ps-adapter';
-import { md } from './utils';
+import { mdSetup } from './utils';
+
+const md = mdSetup({
+	tagListener(tag, props) {
+		if (tag === 'img') {
+			if (!/^(?:https?:)?\/\//.test(props.attrs.src)) {
+				props.attrs.src = `https://www.acmicpc.net${props.attrs.src}`;
+			}
+		}
+		return props;
+	}
+});
 
 export const baekjoonAdapter: PsAdapter = {
 	name: 'baekjoon',
