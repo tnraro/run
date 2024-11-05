@@ -26,7 +26,7 @@ export class Code {
 		return this.#lang;
 	}
 	set lang(value: RunnerLanguage) {
-		this.#code = this.#getItem(this.#codeKey(value), () => Code.#templates[this.#lang]);
+		this.#code = this.#getItem(this.#codeKey(value), () => Code.#templates[value]);
 		this.#setItem(this.#langKey(), value);
 		this.#lang = value;
 	}
